@@ -1,33 +1,33 @@
-# 🔥 AI Code Reviewer
+# AI Code Reviewer
 
-Sistema de análise de código com IA que integra React, Go e n8n para fornecer code reviews automatizados com score de qualidade, sugestões de melhoria e geração de relatórios.
+Code review system powered by AI, built with React, Go and n8n. It provides automated reviews with a quality score, improvement suggestions and optional report generation via n8n workflows.
 
-## 🎯 Visão Geral
+## Overview
 
-O **AI Code Reviewer** é uma aplicação full-stack que permite:
+**AI Code Reviewer** is a full-stack application that lets you:
 
-- 📝 **Colar código** via interface React
-- 🤖 **Análise automática** por IA (OpenAI/Hugging Face)
-- 📊 **Score de qualidade** e sugestões detalhadas
-- 🔄 **Automação n8n** para salvar análises e gerar relatórios
-- 🐳 **100% Dockerizado** para fácil execução local
+- Paste code in a React UI
+- Get automated analysis via AI (OpenAI, with mock fallback when no API key is set)
+- See a quality score and detailed suggestions
+- Send review results to n8n for storage and further automation
+- Run everything locally with Docker
 
-### 🗣️ Linguagens Suportadas
+### Supported languages
 
-O sistema suporta análise de código em **11 linguagens**:
+The system supports 11 languages:
 
-- **JavaScript** / **TypeScript**
-- **Vue.js** (com diretrizes específicas do framework)
-- **PHP** / **Laravel** (com padrões Laravel e PSR)
-- **Go**
-- **Python**
-- **Java**
-- **Rust**
-- **C++** / **C**
+- JavaScript / TypeScript
+- Vue.js (with framework-specific guidelines)
+- PHP / Laravel (Laravel and PSR conventions)
+- Go
+- Python
+- Java
+- Rust
+- C++ / C
 
-Cada linguagem recebe análise especializada considerando suas convenções, padrões e melhores práticas específicas.
+Each language is analyzed with its own conventions and best practices in mind.
 
-## 🏗️ Arquitetura
+## Architecture
 
 ```
 ┌─────────────┐      ┌──────────────┐      ┌─────────────┐
@@ -35,134 +35,129 @@ Cada linguagem recebe análise especializada considerando suas convenções, pad
 │  Frontend   │      │   Backend    │      │  Workflows  │
 └─────────────┘      └──────────────┘      └─────────────┘
                             │
-                            │
                      ┌──────────────┐
                      │  PostgreSQL  │
                      │   (n8n DB)   │
                      └──────────────┘
 ```
 
-### Stack Tecnológica
+### Tech stack
 
-- **Frontend**: React 18 + TypeScript + Vite
-- **Backend**: Go 1.21+ (Gin framework)
-- **Workflow**: n8n (automação e webhooks)
-- **IA**: OpenAI API (ou Hugging Face como alternativa)
-- **Banco de Dados**: PostgreSQL (via n8n)
-- **Containerização**: Docker + Docker Compose
+- **Frontend**: React 18, TypeScript, Vite
+- **Backend**: Go 1.21+ (Gin)
+- **Workflows**: n8n (webhooks and automation)
+- **AI**: OpenAI API (optional; runs with mock data if no key is provided)
+- **Database**: PostgreSQL (used by n8n)
+- **Containers**: Docker and Docker Compose
 
-## 🚀 Início Rápido
+## Quick start
 
-**📖 Para um guia passo a passo completo, veja [QUICKSTART.md](./QUICKSTART.md)**
+For a step-by-step guide, see [QUICKSTART.md](./QUICKSTART.md).
 
-### Pré-requisitos
+### Prerequisites
 
-- Docker e Docker Compose instalados
-- Chave de API da OpenAI (ou Hugging Face) - **opcional** para testes locais (usa mock sem API key)
+- Docker and Docker Compose
+- OpenAI API key is optional for local runs (mock analysis is used when no key is set)
 
-### Executar o Projeto
+### Run the project
 
 ```bash
-# 1. Configure as variáveis de ambiente (opcional)
-# Crie .env com OPENAI_API_KEY se tiver (senão usa mock)
+# 1. Optional: set environment variables
+# Create .env and add OPENAI_API_KEY if you want real AI analysis
 
-# 2. Suba todos os serviços
+# 2. Start all services
 make up
-# ou: docker compose up -d
+# or: docker compose up -d
 
-# 3. Acesse as aplicações:
-# - Frontend React: http://localhost:3000
-# - Backend Go API: http://localhost:8080
-# - n8n Dashboard: http://localhost:5678
-# - Health Check: http://localhost:8080/api/v1/health
+# 3. Open in the browser:
+# - Frontend: http://localhost:3000
+# - Backend API: http://localhost:8080
+# - n8n: http://localhost:5678
+# - Health: http://localhost:8080/api/v1/health
 ```
 
-### Comandos Úteis
+### Useful commands
 
 ```bash
-make help      # Ver todos os comandos disponíveis
-make logs      # Ver logs de todos os serviços
-make down      # Parar todos os serviços
-make build     # Rebuild todas as imagens
+make help      # List available commands
+make logs      # Follow logs for all services
+make down      # Stop all services
+make build     # Rebuild images
 ```
 
-## 📁 Estrutura do Projeto
+## Project structure
 
 ```
 test-GO/
 ├── frontend/              # React + TypeScript + Vite
 │   ├── src/
-│   │   ├── components/   # Componentes React
-│   │   ├── services/     # API clients
-│   │   └── types/        # TypeScript types
+│   │   ├── components/
+│   │   ├── services/
+│   │   └── types/
 │   └── Dockerfile
 │
-├── backend/              # Go API
-│   ├── cmd/
-│   │   └── api/         # Entry point
+├── backend/               # Go API
+│   ├── cmd/api/           # Entry point
 │   ├── internal/
-│   │   ├── handlers/    # HTTP handlers
-│   │   ├── services/    # Business logic
-│   │   ├── models/      # Data models
-│   │   └── ai/          # IA integration
+│   │   ├── handlers/
+│   │   ├── services/
+│   │   ├── models/
+│   │   └── config/
 │   └── Dockerfile
 │
-├── n8n/                 # n8n workflows
-│   └── workflows/       # JSON workflows
+├── n8n/
+│   └── workflows/
 │
-├── docker-compose.yml    # Orquestração de serviços
-├── .env.example         # Template de variáveis
-└── README.md           # Este arquivo
+├── docker-compose.yml
+├── .env.example
+└── README.md
 ```
 
-## 🔧 Configuração
+## Configuration
 
-### Variáveis de Ambiente
+### Environment variables
 
-Veja `.env.example` para todas as variáveis disponíveis:
+See `.env.example` for all options. Main ones:
 
-- `OPENAI_API_KEY`: Chave da API OpenAI (opcional - pode usar mock)
-- `N8N_BASIC_AUTH_USER`: Usuário do n8n (padrão: admin)
-- `N8N_BASIC_AUTH_PASSWORD`: Senha do n8n (padrão: admin)
-- `POSTGRES_USER`: Usuário do PostgreSQL
-- `POSTGRES_PASSWORD`: Senha do PostgreSQL
+- `OPENAI_API_KEY`: OpenAI API key (optional; mock is used when empty)
+- `N8N_BASIC_AUTH_USER`: n8n login (default: admin)
+- `N8N_BASIC_AUTH_PASSWORD`: n8n password (default: admin)
+- `POSTGRES_USER` / `POSTGRES_PASSWORD`: PostgreSQL credentials
 
-## 📚 Documentação
+## Documentation
 
-- [Arquitetura Detalhada](./docs/architecture.md)
-- [Guia de Desenvolvimento](./docs/development.md)
-- [API Documentation](./docs/api.md)
-- [n8n Workflows](./docs/n8n-workflows.md)
+- [Architecture](./docs/architecture.md)
+- [Development guide](./docs/development.md)
+- [API](./docs/api.md)
+- [n8n workflows](./docs/n8n-workflows.md)
 
-## 🧪 Testes
+## Tests
 
 ```bash
-# Testes do backend Go
-cd backend
-go test ./...
+# Backend
+cd backend && go test ./...
 
-# Testes do frontend React
-cd frontend
-npm test
+# Frontend
+cd frontend && npm test
 ```
 
-## 📝 Roadmap
+## Roadmap
 
-- [x] Estrutura base do projeto
-- [x] Integração com OpenAI API (com fallback para mock)
-- [x] Interface React para code review
-- [x] Workflow n8n para salvar análises
-- [ ] Geração de relatórios PDF
-- [ ] Integração com GitHub PRs
-- [ ] Histórico de análises
-- [ ] Dashboard de métricas
-- [ ] Testes automatizados (unit + integration)
-- [ ] CI/CD pipeline
+- [x] Base project structure
+- [x] OpenAI integration with mock fallback
+- [x] React code review UI
+- [x] n8n workflow for saving reviews
+- [ ] PDF report generation
+- [ ] GitHub PR integration
+- [ ] Review history
+- [ ] Metrics dashboard
+- [ ] Automated tests (unit and integration)
+- [ ] CI/CD
 
-## 🤝 Contribuindo
+## Contributing
 
-Este é um projeto de portfólio. Sinta-se livre para fazer fork e melhorias!
+This is a portfolio project. Feel free to fork and adapt.
 
-## 📄 Licença
+## License
 
-MIT License
+MIT
