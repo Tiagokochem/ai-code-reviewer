@@ -1,0 +1,117 @@
+services:
+  # PostgreSQL para n8n
+  postgres:
+    image: postgres:15-alpine
+    container_name: code-reviewer-postgres
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-n8n}
+      POSTGRES_USER: ${POSTGRES_USER:-n8n}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-n8n_password}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-n8n}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - code-reviewer-network
+
+  # n8n - Automação e Workflows
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: code-reviewer-n8n
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      - DB_TYPE=postgresdb
+      - DB_POSTGRESDB_HOST=postgres
+      - DB_POSTGRESDB_DATABASE=${POSTGRES_DB:-n8n}
+      - DB_POSTGRESDB_USER=${POSTGRES_USER:-n8n}
+      - DB_POSTGRESDB_PASSWORD=${POSTGRES_PASSWORD:-n8n_password}
+      - N8N_BASIC_AUTH_ACTIVE=${N8N_BASIC_AUTH_ACTIVE:-true}
+      - N8N_BASIC_AUTH_USER=${N8N_BASIC_AUTH_USER:-admin}
+      - N8N_BASIC_AUTH_PASSWORD=${N8N_BASIC_AUTH_PASSWORD:-admin}
+      - N8N_HOST=0.0.0.0
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=http
+      - WEBHOOK_URL=http://localhost:5678/
+    ports:
+      - "${N8N_PORT:-5678}:5678"
+    volumes:
+      - n8n_data:/home/node/.n8n
+      - ./n8n/workflows:/data/workflows
+    networks:
+      - code-reviewer-network
+    restart: unless-stopped
+
+  # Backend Go API (roda o binário buildado na imagem)
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: code-reviewer-backend
+    environment:
+      - PORT=${BACKEND_PORT:-8080}
+      - HOST=${BACKEND_HOST:-0.0.0.0}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - OPENAI_MODEL=${OPENAI_MODEL:-gpt-3.5-turbo}
+      - N8N_WEBHOOK_URL=http://n8n:5678/webhook/code-review
+    ports:
+      - "${BACKEND_PORT:-8080}:8080"
+    networks:
+      - code-reviewer-network
+    depends_on:
+      - n8n
+    restart: unless-stopped
+
+  # Frontend React
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: code-reviewer-frontend
+    environment:
+      - VITE_API_URL=http://localhost:8080
+      - NODE_ENV=${NODE_ENV:-development}
+    ports:
+      - "${FRONTEND_PORT:-3000}:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    networks:
+      - code-reviewer-network
+    depends_on:
+      - backend
+    restart: unless-stopped
+    command: npm run dev -- --host 0.0.0.0
+
+  # Container para desenvolvimento com aios-core (opcional)
+  aios-core:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: aios-core:node20
+    container_name: aios-core
+    working_dir: /app
+    volumes:
+      - .:/app
+    stdin_open: true
+    tty: true
+    environment:
+      - NODE_ENV=development
+    networks:
+      - code-reviewer-network
+    profiles:
+      - dev-tools
+
+volumes:
+  postgres_data:
+  n8n_data:
+
+networks:
+  code-reviewer-network:
+    driver: bridge
