@@ -1,4 +1,8 @@
 # AI Code Reviewer
+![1](https://github.com/user-attachments/assets/d9b2d23f-d7d6-467d-a533-d3d5d200aa48)
+![2](https://github.com/user-attachments/assets/51e239c3-f7a4-4d74-bb9b-8e9149e43197)
+
+
 
 Code review system powered by AI, built with React, Go and n8n. It provides automated reviews with a quality score, improvement suggestions and optional report generation via n8n workflows.
 
